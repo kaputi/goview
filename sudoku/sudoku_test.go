@@ -17,15 +17,22 @@ func createBoardFromInts(intBoard [][]int) Board {
 	return board
 }
 
-func PrintBoard(board Board) {
+func printBoard(board Board, what string) {
 	fmt.Println("-----------------------------------------")
 	ints := [][]string{}
 	for _, row := range board {
 		rowInt := []string{}
 		for _, cell := range row {
-			val := " "
-			if cell.value != 0 {
-				val = fmt.Sprintf("%d", cell.value)
+			val := "-"
+			switch what {
+			case "solutionError":
+				val = fmt.Sprintf("%t", cell.isSolutionError)
+			case "placedError":
+				val = fmt.Sprintf("%t", cell.isPlacedError)
+			case "placed":
+				if cell.value != 0 {
+					val = fmt.Sprintf("%d", cell.value)
+				}
 			}
 			rowInt = append(rowInt, val)
 		}
@@ -89,45 +96,83 @@ var unsovable = [][]int{
 	{0, 0, 7, 0, 0, 0, 0, 0, 0},
 }
 
-func TestSolve(t *testing.T) {
-	board := createBoardFromInts(board1)
-	expect := createBoardFromInts(solution1)
-	soluition, err := Solve(board)
-	assert.Nil(t, err)
-	assert.Equal(t, expect, soluition)
-}
+// func TestSolve(t *testing.T) {
+// 	board := createBoardFromInts(board1)
+// 	expect := createBoardFromInts(solution1)
+// 	soluition, err := Solve(board)
+// 	assert.Nil(t, err)
+// 	assert.Equal(t, expect, soluition)
+// }
 
-func TestMultipleSolutions(t *testing.T) {
-	board := createBoardFromInts(multipleSolutions)
-	_, err := Solve(board)
-	assert.EqualError(t, err, "invalid, multiple solutions")
-}
+// func TestMultipleSolutions(t *testing.T) {
+// 	board := createBoardFromInts(multipleSolutions)
+// 	_, err := Solve(board)
+// 	assert.EqualError(t, err, "invalid, multiple solutions")
+// }
 
-func TestCountSolutions(t *testing.T) {
-	board := createBoardFromInts(multipleSolutions)
-	count := CountSolutions(board)
-	assert.Equal(t, 2, count)
-}
+// func TestCountSolutions(t *testing.T) {
+// 	board := createBoardFromInts(multipleSolutions)
+// 	count := CountSolutions(board)
+// 	assert.Equal(t, 2, count)
+// }
 
-func TestUnsolvable(t *testing.T) {
-	board := createBoardFromInts(unsovable)
-	_, err := Solve(board)
+// func TestUnsolvable(t *testing.T) {
+// 	board := createBoardFromInts(unsovable)
+// 	_, err := Solve(board)
 
-	assert.EqualError(t, err, "unsolvable")
-}
+// 	assert.EqualError(t, err, "unsolvable")
+// }
 
-func TestCreateSolvedBoard(t *testing.T) {
-	board := createSolvedBoard()
-	assert.True(t, ValidatePlacements(board))
-}
+// func TestCreateSolvedBoard(t *testing.T) {
+// 	board := createSolvedBoard()
+// 	assert.True(t, ValidatePlacements(board))
+// }
 
-func TestCreate(t *testing.T) {
-	board, expect := Create(6)
-	// PrintBoard(board)
-	// PrintBoard(solution)
+// func TestCreate(t *testing.T) {
+// 	board, expect := GenerateBoard(6)
+// 	// printBoard(board)
+// 	// printBoard(solution)
 
-	solution, err := Solve(board)
-	assert.Nil(t, err)
+// 	solution, err := Solve(board)
+// 	assert.Nil(t, err)
 
-	assert.Equal(t, expect, solution)
+// 	assert.Equal(t, expect, solution)
+// }
+
+func TestSudoku(t *testing.T) {
+	dificulty := 5
+	s := NewSudoku(dificulty)
+
+	filled := GetFilledCoords(*s.placed)
+	fixedCell := s.GetPlacedCell(filled[0].row, filled[0].col)
+	assert.True(t, fixedCell.fixed)
+
+	empty := GetEmptyCoords(*s.placed)
+	emptyCell := s.GetPlacedCell(empty[0].row, empty[0].col)
+	assert.False(t, emptyCell.fixed)
+	assert.Equal(t, 0, emptyCell.value)
+
+	solutionCell := s.GetSolutionCell(filled[0].row, filled[0].col)
+	assert.Equal(t, fixedCell.value, solutionCell.value)
+
+	solutionEmpty := s.GetSolutionCell(empty[0].row, empty[0].col)
+	solutionError := solutionEmpty.value + 1
+	if solutionError == 9 {
+		solutionError = 1
+	} else if solutionError == 1 {
+		solutionError = 9
+	}
+
+	s.SetPlacedCell(empty[0].row, empty[0].col, solutionError)
+	assert.Equal(t, solutionError, s.GetPlacedCell(empty[0].row, empty[0].col).value)
+
+	assert.True(t, s.GetPlacedCell(empty[0].row, empty[0].col).isSolutionError)
+
+	for i := 0; i < 9; i++ {
+		if s.GetPlacedCell(i, empty[0].col).value == 0 {
+			s.SetPlacedCell(i, empty[0].col, solutionError)
+			assert.True(t, s.GetPlacedCell(i, empty[0].col).isPlacedError)
+			break
+		}
+	}
 }

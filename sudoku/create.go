@@ -4,11 +4,19 @@ import (
 	"math/rand"
 )
 
-func Create(dificulty int) (Board, Board) {
+func GenerateBoard(dificulty int) (Board, Board) {
 	board := createSolvedBoard()
 
 	iterations := 0
 	removeNumbers(&board, dificulty, &iterations)
+
+	for rowI, row := range board {
+		for colI, cell := range row {
+			if cell.value != 0 {
+				board[rowI][colI].fixed = true
+			}
+		}
+	}
 
 	solution, _ := Solve(board)
 
