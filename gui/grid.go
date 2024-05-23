@@ -5,8 +5,8 @@ import (
 	"github.com/kaputi/sudokugo/view"
 )
 
-func SudokuToViewCoord(row, col int) (int, int) {
-	return 1 + row*2, 2 + col*4
+func SudokuToViewCoord(row, col int, offset [2]int) (int, int) {
+	return 1 + row*2 + offset[0], 2 + col*4 + offset[1]
 }
 
 func GridImage(class string, t *theme.Theme) *view.Image {
