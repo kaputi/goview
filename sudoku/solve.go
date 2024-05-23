@@ -38,7 +38,7 @@ func GetInvalidCoords(board Board) []Coord {
 	coords := []Coord{}
 	for rowIdx, row := range board {
 		for colIdx, cell := range row {
-			if cell.value != 0 && !isValidCell(cell.value, rowIdx, colIdx, board) {
+			if cell.Value != 0 && !isValidCell(cell.Value, rowIdx, colIdx, board) {
 				coords = append(coords, Coord{row: rowIdx, col: colIdx})
 			}
 		}
@@ -56,7 +56,7 @@ func solveHelper(board, solved *Board, counter *int, countAll bool) bool {
 			continue
 		}
 
-		(*board)[row][col].value = value
+		(*board)[row][col].Value = value
 
 		if boardIsFull(*board) {
 			*counter++
@@ -70,7 +70,7 @@ func solveHelper(board, solved *Board, counter *int, countAll bool) bool {
 		}
 	}
 
-	(*board)[row][col].value = 0
+	(*board)[row][col].Value = 0
 	return false
 }
 
@@ -81,11 +81,11 @@ func isValidCell(number, row, col int, board Board) bool {
 
 	// check that number doesnt repeat in row or column
 	for i := 0; i < 9; i++ {
-		if board[row][i].value == number && i != col {
+		if board[row][i].Value == number && i != col {
 			return false
 		}
 
-		if board[i][col].value == number && i != row {
+		if board[i][col].Value == number && i != row {
 			return false
 		}
 	}
@@ -100,7 +100,7 @@ func isValidCell(number, row, col int, board Board) bool {
 			if checRow == row && checkCol == col {
 				continue
 			}
-			if board[checRow][checkCol].value == number {
+			if board[checRow][checkCol].Value == number {
 				return false
 			}
 

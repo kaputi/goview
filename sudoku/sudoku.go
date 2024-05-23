@@ -13,10 +13,10 @@ type Coord struct {
 }
 
 type SudokuCell struct {
-	value           int
-	fixed           bool
-	isPlacedError   bool
-	isSolutionError bool
+	Value           int
+	Fixed           bool
+	IsPlacedError   bool
+	IsSolutionError bool
 }
 
 type Board [9][9]SudokuCell
@@ -33,6 +33,8 @@ func NewSudoku(dificulty int) *Sudoku {
 	return &Sudoku{
 		solution: &solution,
 		placed:   &board,
+		notes1:   &Board{},
+		notes2:   &Board{},
 	}
 }
 
@@ -70,7 +72,7 @@ func (s *Sudoku) getCell(row, col int, layer string) SudokuCell {
 		return s.solution[row][col]
 	}
 	// all other layers give preference to the placed layer
-	if s.placed[row][col].value != 0 {
+	if s.placed[row][col].Value != 0 {
 		return s.placed[row][col]
 	}
 
@@ -80,19 +82,24 @@ func (s *Sudoku) getCell(row, col int, layer string) SudokuCell {
 
 func (s *Sudoku) setCell(row, col int, layer string, value int) {
 	board := s.getBoard(layer)
-	if board[row][col].fixed {
+	if board[row][col].Fixed {
 		return
 	}
-	board[row][col].value = value
+	board[row][col].Value = value
+
+  if value == 0 {
+    board[row][col].IsPlacedError = false
+    board[row][col].IsSolutionError = false
+  }
 
 	if layer != PLACED {
 		return
 	}
 
-	if s.solution[row][col].value != value {
-		board[row][col].isSolutionError = true
+	if s.solution[row][col].Value != value && value != 0 {
+		board[row][col].IsSolutionError = true
 	} else {
-		board[row][col].isSolutionError = false
+		board[row][col].IsSolutionError = false
 	}
 
 	s.updatePlacedErrors()
@@ -116,7 +123,7 @@ func (s *Sudoku) getBoard(layer string) *Board {
 func (s *Sudoku) updatePlacedErrors() {
 	for rowI, row := range s.placed {
 		for colI, cell := range row {
-			s.placed[rowI][colI].isPlacedError = !isValidCell(cell.value, rowI, colI, *s.placed)
+			s.placed[rowI][colI].IsPlacedError = !isValidCell(cell.Value, rowI, colI, *s.placed)
 		}
 	}
 }

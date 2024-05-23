@@ -11,7 +11,7 @@ func swapNumbersRandomly(board *Board) {
 
 	for rowIdx, row := range *board {
 		for colIdx, cell := range row {
-			(*board)[rowIdx][colIdx].value = numbers[cell.value-1]
+			(*board)[rowIdx][colIdx].Value = numbers[cell.Value-1]
 		}
 	}
 }
@@ -26,7 +26,7 @@ func scrambleSlice[T any](slice *[]T) {
 func getNextEmpty(board Board) (int, int) {
 	for rowIdx, row := range board {
 		for colIdx, cell := range row {
-			if cell.value == 0 {
+			if cell.Value == 0 {
 				return rowIdx, colIdx
 			}
 		}
@@ -38,7 +38,7 @@ func getNextEmpty(board Board) (int, int) {
 func boardIsFull(board Board) bool {
 	for _, rowIdx := range board {
 		for _, cell := range rowIdx {
-			if cell.value == 0 {
+			if cell.Value == 0 {
 				return false
 			}
 		}
@@ -52,10 +52,10 @@ func getCoords(board Board, filled bool) []Coord {
 	for rowI, row := range board {
 		for colI, cell := range row {
 			coord := Coord{row: rowI, col: colI}
-			if filled && cell.value != 0 {
+			if filled && cell.Value != 0 {
 				coords = append(coords, coord)
 			}
-			if !filled && cell.value == 0 {
+			if !filled && cell.Value == 0 {
 				coords = append(coords, coord)
 			}
 		}

@@ -11,7 +11,7 @@ func createBoardFromInts(intBoard [][]int) Board {
 	board := Board{}
 	for rowI, row := range intBoard {
 		for colI, val := range row {
-			board[rowI][colI].value = val
+			board[rowI][colI].Value = val
 		}
 	}
 	return board
@@ -26,12 +26,12 @@ func printBoard(board Board, what string) {
 			val := "-"
 			switch what {
 			case "solutionError":
-				val = fmt.Sprintf("%t", cell.isSolutionError)
+				val = fmt.Sprintf("%t", cell.IsSolutionError)
 			case "placedError":
-				val = fmt.Sprintf("%t", cell.isPlacedError)
+				val = fmt.Sprintf("%t", cell.IsPlacedError)
 			case "placed":
-				if cell.value != 0 {
-					val = fmt.Sprintf("%d", cell.value)
+				if cell.Value != 0 {
+					val = fmt.Sprintf("%d", cell.Value)
 				}
 			}
 			rowInt = append(rowInt, val)
@@ -145,18 +145,18 @@ func TestSudoku(t *testing.T) {
 
 	filled := GetFilledCoords(*s.placed)
 	fixedCell := s.GetPlacedCell(filled[0].row, filled[0].col)
-	assert.True(t, fixedCell.fixed)
+	assert.True(t, fixedCell.Fixed)
 
 	empty := GetEmptyCoords(*s.placed)
 	emptyCell := s.GetPlacedCell(empty[0].row, empty[0].col)
-	assert.False(t, emptyCell.fixed)
-	assert.Equal(t, 0, emptyCell.value)
+	assert.False(t, emptyCell.Fixed)
+	assert.Equal(t, 0, emptyCell.Value)
 
 	solutionCell := s.GetSolutionCell(filled[0].row, filled[0].col)
-	assert.Equal(t, fixedCell.value, solutionCell.value)
+	assert.Equal(t, fixedCell.Value, solutionCell.Value)
 
 	solutionEmpty := s.GetSolutionCell(empty[0].row, empty[0].col)
-	solutionError := solutionEmpty.value + 1
+	solutionError := solutionEmpty.Value + 1
 	if solutionError == 9 {
 		solutionError = 1
 	} else if solutionError == 1 {
@@ -164,14 +164,14 @@ func TestSudoku(t *testing.T) {
 	}
 
 	s.SetPlacedCell(empty[0].row, empty[0].col, solutionError)
-	assert.Equal(t, solutionError, s.GetPlacedCell(empty[0].row, empty[0].col).value)
+	assert.Equal(t, solutionError, s.GetPlacedCell(empty[0].row, empty[0].col).Value)
 
-	assert.True(t, s.GetPlacedCell(empty[0].row, empty[0].col).isSolutionError)
+	assert.True(t, s.GetPlacedCell(empty[0].row, empty[0].col).IsSolutionError)
 
 	for i := 0; i < 9; i++ {
-		if s.GetPlacedCell(i, empty[0].col).value == 0 {
+		if s.GetPlacedCell(i, empty[0].col).Value == 0 {
 			s.SetPlacedCell(i, empty[0].col, solutionError)
-			assert.True(t, s.GetPlacedCell(i, empty[0].col).isPlacedError)
+			assert.True(t, s.GetPlacedCell(i, empty[0].col).IsPlacedError)
 			break
 		}
 	}

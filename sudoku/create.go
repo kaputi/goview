@@ -12,8 +12,8 @@ func GenerateBoard(dificulty int) (Board, Board) {
 
 	for rowI, row := range board {
 		for colI, cell := range row {
-			if cell.value != 0 {
-				board[rowI][colI].fixed = true
+			if cell.Value != 0 {
+				board[rowI][colI].Fixed = true
 			}
 		}
 	}
@@ -31,11 +31,11 @@ func createSolvedBoard() Board {
 		// find random empty cell
 		row := rand.Intn(9)
 		col := rand.Intn(9)
-		for board[row][col].value != 0 {
+		for board[row][col].Value != 0 {
 			row = rand.Intn(9)
 			col = rand.Intn(9)
 		}
-		board[row][col].value = i
+		board[row][col].Value = i
 	}
 
 	solved, _ := Solve(board)
@@ -93,13 +93,13 @@ func removeNumbers(board *Board, dificulty int, iterations *int) {
 }
 
 func removeCoordIfPosible(board *Board, coord Coord) bool {
-	valBackup := board[coord.row][coord.col].value
-	(*board)[coord.row][coord.col].value = 0
+	valBackup := board[coord.row][coord.col].Value
+	(*board)[coord.row][coord.col].Value = 0
 
 	_, err := Solve(*board)
 
 	if err != nil {
-		(*board)[coord.row][coord.col].value = valBackup
+		(*board)[coord.row][coord.col].Value = valBackup
 		return false
 	}
 

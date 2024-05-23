@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/kaputi/sudokugo/gui"
+	"github.com/kaputi/sudokugo/sudoku"
 	"github.com/kaputi/sudokugo/theme"
 	"github.com/kaputi/sudokugo/view"
 	"github.com/mattn/go-tty"
@@ -26,7 +27,7 @@ type Game struct {
 	lastLayer   int
 	position    [2]int
 	boardOffset [2]int
-	testBoard   [9][9]int
+	sudoku      *sudoku.Sudoku
 }
 
 func NewGame() Game {
@@ -36,9 +37,10 @@ func NewGame() Game {
 		layer:     PLAY,
 		lastLayer: PLAY,
 		position:  [2]int{0, 0},
+		sudoku:    sudoku.NewSudoku(4),
 	}
 
-	gridImage := gui.GridImage("grid", game.theme)
+	gridImage := gui.GridImage("Grid", game.theme)
 	game.gridImage = gridImage
 
 	// TEST:
@@ -72,12 +74,12 @@ func (g *Game) render() {
 
 func (g *Game) update() {
 	if g.layer != g.lastLayer {
-		classColor := "grid"
+		classColor := "Grid"
 		switch g.layer {
 		case NOTE1:
-			classColor = "note1"
+			classColor = "Note1Grid"
 		case NOTE2:
-			classColor = "note2"
+			classColor = "Note2Grid"
 		}
 		color := g.theme.GetClassColor(classColor)
 
@@ -94,18 +96,63 @@ func (g *Game) drawNumbersAndPos() {
 	for rowI := 0; rowI < 9; rowI++ {
 		for colI := 0; colI < 9; colI++ {
 			viewRow, viewCol := gui.SudokuToViewCoord(rowI, colI, g.boardOffset)
-			val := fmt.Sprintf("%d", g.testBoard[rowI][colI])
+			class := ""
 			if g.position[0] == rowI && g.position[1] == colI {
-				g.view.UpdateCell(val, "black,white", viewRow, viewCol)
-			} else {
-				g.view.UpdateCell(val, "", viewRow, viewCol)
+				class = "Selected"
 			}
+
+			var cell sudoku.SudokuCell
+			switch g.layer {
+			case PLAY:
+				cell = g.sudoku.GetPlacedCell(rowI, colI)
+			case NOTE1:
+				cell = g.sudoku.GetNotes1Cell(rowI, colI)
+			case NOTE2:
+				cell = g.sudoku.GetNotes2Cell(rowI, colI)
+			}
+
+			if cell.Fixed {
+				class += "Fixed"
+			} else {
+				switch g.layer {
+				case PLAY:
+					// if cell.IsSolutionError || cell.IsPlacedError {
+					if cell.IsSolutionError {
+						class += "Error"
+					} else if cell.IsPlacedError {
+						class += "NoTe"
+					} else {
+						class += "Placed"
+					}
+				case NOTE1:
+					class += "Note"
+				case NOTE2:
+					class += "Note"
+				}
+			}
+
+			color := g.theme.GetClassColor(class)
+			val := " "
+			if cell.Value != 0 {
+				val = fmt.Sprintf("%d", cell.Value)
+			}
+
+			g.view.UpdateCell(val, color, viewRow, viewCol)
+
 		}
 	}
 }
 
 func (g *Game) placeNumber(num int) {
-	g.testBoard[g.position[0]][g.position[1]] = num
+	switch g.layer {
+	case PLAY:
+		g.sudoku.SetPlacedCell(g.position[0], g.position[1], num)
+	case NOTE1:
+		g.sudoku.SetNotes1Cell(g.position[0], g.position[1], num)
+	case NOTE2:
+		g.sudoku.SetNotes2Cell(g.position[0], g.position[1], num)
+
+	}
 }
 
 func (g *Game) changeLayer() {
