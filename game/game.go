@@ -37,7 +37,7 @@ func NewGame() Game {
 		layer:     PLAY,
 		lastLayer: PLAY,
 		position:  [2]int{0, 0},
-		sudoku:    sudoku.NewSudoku(4),
+		sudoku:    sudoku.NewSudoku(1),
 	}
 
 	gridImage := gui.GridImage("Grid", game.theme)
